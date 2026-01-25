@@ -1,3 +1,18 @@
+## CPU Baseline Performance
+
+- Platform: Host CPU (Windows)
+- Operation: 3×3 convolution
+- Image size: 8×8
+- Output size: 6×6
+- Data type: INT8 × INT8 → INT16
+
+### Results
+- Execution time: 166,700 ns
+- Output correctness: Verified (output[0][0] = 9)
+
+This baseline represents a CPU-only CNN convolution used for comparison with FPGA acceleration.
+
+---
 ## Performance Metrics
 
 ### Latency
