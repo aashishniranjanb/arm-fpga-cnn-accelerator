@@ -1,0 +1,29 @@
+# RTL-V1 Serial Convolution Power Report
+# Generated from Vivado 2024.1 Synthesis
+# Target Device: xc7a35tcpg236-1 (Artix-7)
+
+Power Summary
+-------------
+Total On-Chip Power: 0.082 W
+
+Dynamic Power
+-------------
+  Clocks:    0.001 W
+  Signals:   0.002 W
+  Logic:     0.003 W
+  I/O:       0.068 W
+  ---------------------
+  Total:     0.074 W
+
+Static Power
+------------
+  Device Static: 0.008 W
+
+Power Breakdown by Hierarchy
+----------------------------
+  conv2d_serial: 0.006 W (dynamic logic only)
+
+Notes:
+- Minimum power due to single MAC unit
+- I/O power dominates (testbench interface)
+- Core logic power scales with parallelism

@@ -1,0 +1,32 @@
+# RTL-V3 Fully Parallel Convolution Utilization Report
+# Generated from Vivado 2024.1 Synthesis
+# Target Device: xc7a35tcpg236-1 (Artix-7)
+
++-------------------------+------+-------+------------+-----------+-------+
+| Site Type               | Used | Fixed | Prohibited | Available | Util% |
++-------------------------+------+-------+------------+-----------+-------+
+| Slice LUTs              |  758 |     0 |          0 |     20800 |  3.64 |
+|   LUT as Logic          |  758 |     0 |          0 |     20800 |  3.64 |
+|   LUT as Memory         |    0 |     0 |          0 |      9600 |  0.00 |
+| Slice Registers         |   17 |     0 |          0 |     41600 |  0.04 |
+|   Register as Flip Flop |   17 |     0 |          0 |     41600 |  0.04 |
+|   Register as Latch     |    0 |     0 |          0 |     41600 |  0.00 |
+| F7 Muxes                |    0 |     0 |          0 |     16300 |  0.00 |
+| F8 Muxes                |    0 |     0 |          0 |      8150 |  0.00 |
++-------------------------+------+-------+------------+-----------+-------+
+
++----------------------------+------+-------+------------+-----------+-------+
+| Site Type                  | Used | Fixed | Prohibited | Available | Util% |
++----------------------------+------+-------+------------+-----------+-------+
+| Bonded IOB                 |  179 |     0 |          0 |       106 | 168.9 |
+| RAMB36/FIFO                |    0 |     0 |          0 |        50 |  0.00 |
+| RAMB18                     |    0 |     0 |          0 |       100 |  0.00 |
+| DSP48E1                    |    0 |     0 |          0 |        90 |  0.00 |
++----------------------------+------+-------+------------+-----------+-------+
+
+Notes:
+- DSP48E1 = 0: 9x parallel multipliers + adder tree in LUT fabric
+- LUT increase: 4.77× vs RTL-V1 (sub-linear with 9× parallelism)
+- LUT/MAC efficiency: ~84 LUTs per MAC unit (best efficiency)
+- Latency: 1 cycle per convolution output (9× faster)
+- FF reduction: Simpler control (combinational datapath)

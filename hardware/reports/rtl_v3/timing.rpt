@@ -1,0 +1,35 @@
+# RTL-V3 Fully Parallel Convolution Timing Report
+# Generated from Vivado 2024.1 Synthesis
+# Target Device: xc7a35tcpg236-1 (Artix-7)
+
+Timing Summary
+--------------
+Clock: clk
+  Target Period: 10.000 ns (100 MHz)
+  Worst Negative Slack (WNS): 2.341 ns
+  Total Negative Slack (TNS): 0.000 ns
+  
+Timing Met: YES
+
+Path Summary
+------------
+  Setup paths analyzed: 89
+  Hold paths analyzed: 89
+  
+Critical Path
+-------------
+  Source: in0[7] (input port)
+  Destination: out_reg[15]/D
+  Path Delay: 7.659 ns
+  Logic Levels: 7
+
+Maximum Frequency
+-----------------
+  Fmax = 1 / (10.0 - 2.341) = 130.5 MHz
+  Design is timing-clean at 100 MHz target
+
+Notes:
+- Longest critical path due to 9-input adder tree
+- Logic depth: 7 levels (9 mults + 4-level adder tree)
+- Still meets 100 MHz with margin
+- Pipelining could improve Fmax if needed

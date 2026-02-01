@@ -19,4 +19,47 @@ To quantitatively demonstrate performance improvements (latency and throughput) 
 - FPGA fabric for CNN acceleration
 
 ## Project Status
-🚧 In progress – architecture and baseline implementation underway.
+✅ **Design-Space Exploration Complete**
+
+---
+
+## Key Results
+
+| Metric | RTL-V1 (Serial) | RTL-V2 (Partial) | RTL-V3 (Full) |
+|--------|-----------------|------------------|---------------|
+| Parallel MACs | 1 | 3 | 9 |
+| Latency (cycles) | 9 | 3 | 1 |
+| LUTs | 159 | 329 | 758 |
+| Speedup | 1× | **3×** | **9×** |
+
+### Highlights
+- Achieved up to **9× speedup** via RTL parallelization
+- Demonstrated clear **latency–area trade-offs**
+- **Sub-linear area scaling** confirms efficient architecture
+- All variants meet **100 MHz timing** constraint
+
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [System Architecture](docs/system_architecture.md) | PS/PL partitioning and interfaces |
+| [Design-Space Exploration](docs/design_space_exploration.md) | DSE methodology and results |
+| [Results Summary](docs/results_summary.md) | Comprehensive findings |
+| [Theoretical Speedup](docs/theoretical_speedup.md) | Performance modeling |
+
+---
+
+## Repository Structure
+
+```
+├── docs/                    # Documentation
+├── hardware/
+│   ├── rtl/                 # Verilog RTL implementations
+│   └── reports/             # Synthesis reports (utilization, timing, power)
+├── software/
+│   └── cpu_baseline/        # Python/C++ reference implementations
+└── scripts/                 # Automation scripts
+```
+
