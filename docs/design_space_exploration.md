@@ -108,6 +108,49 @@ Efficiency is defined as **speedup per DSP**, measuring how effectively hardware
 
 ---
 
+## RTL-Level Design-Space Exploration
+
+In addition to HLS-based exploration, we implement **pure RTL convolution cores** to demonstrate micro-architecture understanding.
+
+### RTL Implementation Variants
+
+| Variant | File | Parallel MACs | Architecture |
+|---------|------|---------------|--------------|
+| RTL-V1 | `conv2d_serial.v` | 1 | Sequential MAC with FSM |
+| RTL-V2 | `conv2d_unroll3.v` | 3 | Partial parallel with mux |
+| RTL-V3 | `conv2d_unroll9.v` | 9 | Fully parallel + adder tree |
+
+### RTL Synthesis Results (Vivado)
+
+| Variant | DSPs | LUTs | FFs | Latency (cycles) | Throughput |
+|---------|------|------|-----|------------------|------------|
+| RTL-V1 | ___ | ___ | ___ | 9 | 1 / 9 cycles |
+| RTL-V2 | ___ | ___ | ___ | 3 | 1 / 3 cycles |
+| RTL-V3 | ___ | ___ | ___ | 1 | 1 / cycle |
+
+> **Note**: Fill DSP/LUT/FF values from Vivado synthesis reports.
+
+### RTL vs HLS Comparison
+
+| Aspect | RTL Approach | HLS Approach |
+|--------|--------------|--------------|
+| Control | Explicit FSM | Tool-generated |
+| Optimization | Manual | Pragma-guided |
+| Verification | Cycle-accurate | Behavioral |
+| Flexibility | Full | Constrained |
+
+### Why RTL-Level DSE Matters
+
+RTL implementation demonstrates:
+- Understanding of **micro-architecture trade-offs**
+- Ability to **reason about cycles and parallelism**
+- Control over **hardware scheduling**
+- Independence from **tool abstractions**
+
+> "Partial parallelism (RTL-V2) achieves most of the performance benefit of full unrolling while significantly reducing hardware cost."
+
+---
+
 ## Conclusion
 
 *To be filled after DSE completion:*
