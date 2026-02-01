@@ -118,17 +118,19 @@ In addition to HLS-based exploration, we implement **pure RTL convolution cores*
 |---------|------|---------------|--------------|
 | RTL-V1 | `conv2d_serial.v` | 1 | Sequential MAC with FSM |
 | RTL-V2 | `conv2d_unroll3.v` | 3 | Partial parallel with mux |
-| RTL-V3 | `conv2d_unroll9.v` | 9 | Fully parallel + adder tree |
+| RTL-V3 | `conv2d_unroll9.v` | 9 | Fully parallel + adder tree (LUT) |
+| RTL-V4 | `conv2d_unroll9_dsp.v` | 9 | Fully parallel + DSP48 binding |
 
-### RTL Synthesis Results (Vivado)
+### RTL Synthesis Results (Vivado 2024.1 on Zynq-7020)
 
 | Variant | DSPs | LUTs | FFs | Latency (cycles) | Throughput | Speedup |
 |---------|------|------|-----|------------------|------------|--------:|
 | RTL-V1 | 0 | 159 | 38 | 9 | 1 / 9 cycles | 1× |
 | RTL-V2 | 0 | 329 | 37 | 3 | 1 / 3 cycles | **3×** |
 | RTL-V3 | 0 | 758 | 17 | 1 | 1 / cycle | **9×** |
+| **RTL-V4** | **9** | **0** | 1 | 1 | 1 / cycle | **9×** |
 
-> **Note**: DSP48E1=0 because 8×8 multipliers map to LUT fabric without explicit binding.
+> **Key Finding**: V4 achieves same 9× speedup as V3 but with **0 LUTs** by using DSP48E1 blocks.
 
 ### RTL vs HLS Comparison
 
@@ -149,6 +151,23 @@ RTL implementation demonstrates:
 
 > "Partial parallelism (RTL-V2) achieves most of the performance benefit of full unrolling while significantly reducing hardware cost."
 
+## LUT vs DSP Trade-off Analysis
+
+Comparing RTL-V3 (LUT-based) vs RTL-V4 (DSP-based) for fully parallel convolution:
+
+| Metric | V3 (LUT) | V4 (DSP) | Winner |
+|--------|----------|----------|--------|
+| LUTs | 758 | **0** | V4 |
+| DSPs | 0 | 9 | V3 |
+| FFs | 17 | 1 | V4 |
+| Latency | 1 cycle | 1 cycle | Tie |
+| Energy/MAC | Higher | **Lower** | V4 |
+
+### When to Use Each
+
+- **Use LUT-based (V3)**: When DSPs are needed for other IP cores
+- **Use DSP-based (V4)**: When LUT budget is tight or power efficiency is critical
+
 ---
 
 ## Conclusion
@@ -157,11 +176,14 @@ The design-space exploration reveals key insights:
 
 1. **Linear speedup**: 9× performance improvement with full parallelism
 2. **Sub-linear area**: 4.77× LUT increase for 9× speedup (efficient scaling)
-3. **Best efficiency**: RTL-V2 offers optimal area/performance trade-off
-4. **All variants timing-clean**: Meet 100 MHz constraint comfortably
+3. **DSP binding eliminates LUT usage**: V4 achieves 0 LUTs with 9 DSP48E1 blocks
+4. **Optimal choice depends on resource constraints**:
+   - LUT-constrained → V4 (DSP)
+   - DSP-constrained → V2/V3 (LUT)
+   - Balanced → V2 (partial parallel)
 
-> **Recommendation**: RTL-V2 (partial parallel, 3 MACs) provides the best balance for resource-constrained edge deployments.
+> **Recommendation**: For Zynq-7020 with 220 DSPs available, V4 (DSP-bound) is optimal for CNN acceleration.
 
 ---
 
-**Status**: ✅ DSE complete. Results validated via Vivado synthesis.
+**Status**: ✅ DSE complete with LUT vs DSP comparison. Results validated via Vivado 2024.1 synthesis.

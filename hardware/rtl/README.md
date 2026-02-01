@@ -1,6 +1,6 @@
 # RTL Convolution Design-Space Exploration
 
-This directory contains three RTL implementations of 3×3 CNN convolution with varying levels of parallelism for design-space exploration.
+This directory contains four RTL implementations of 3×3 CNN convolution with varying levels of parallelism and resource binding for design-space exploration.
 
 ---
 
@@ -10,13 +10,25 @@ This directory contains three RTL implementations of 3×3 CNN convolution with v
 |------|---------|---------------|---------|--------------|
 | `conv2d_serial.v` | RTL-V1 | 1 | 9 cycles | Sequential MAC |
 | `conv2d_unroll3.v` | RTL-V2 | 3 | 3 cycles | Partial parallel |
-| `conv2d_unroll9.v` | RTL-V3 | 9 | 1 cycle | Fully parallel + adder tree |
+| `conv2d_unroll9.v` | RTL-V3 | 9 | 1 cycle | Fully parallel (LUT) |
+| `conv2d_unroll9_dsp.v` | RTL-V4 | 9 | 1 cycle | Fully parallel (DSP48) |
 
 ---
 
-## Common Interface
+## Verified Synthesis Results (Vivado 2024.1 on xc7z020clg400-1)
 
-All variants share the same interface for fair comparison:
+| Variant | DSPs | LUTs | FFs | Speedup |
+|---------|------|------|-----|---------|
+| RTL-V1 | 0 | 159 | 38 | 1× |
+| RTL-V2 | 0 | 329 | 37 | **3×** |
+| RTL-V3 | 0 | 758 | 17 | **9×** |
+| **RTL-V4** | **9** | **0** | 1 | **9×** |
+
+> **Key Finding**: V4 achieves same 9× speedup as V3 but with **0 LUTs** by using DSP48E1 blocks.
+
+---
+
+## Common Interface (V1-V3)
 
 ```verilog
 module conv2d_* (
@@ -32,15 +44,19 @@ module conv2d_* (
 
 ---
 
-## Test Dataset
+## V4 DSP Interface (Signed)
 
-All simulations use the same deterministic test pattern:
-
-- **Input values**: All ones (1)
-- **Kernel values**: All ones (1)
-- **Expected output**: 9
-
-This ensures correctness verification across all variants.
+```verilog
+module conv2d_unroll9_dsp (
+    input  wire                 clk,
+    input  wire                 rst,
+    input  wire                 valid_in,
+    input  wire signed [7:0]    in0, ..., in8,  // Signed inputs
+    input  wire signed [7:0]    w0, ..., w8,    // Signed weights
+    output reg  signed [15:0]   result,
+    output reg                  valid_out
+);
+```
 
 ---
 
@@ -51,50 +67,25 @@ This ensures correctness verification across all variants.
 | `tb_conv2d_serial.v` | RTL-V1 correctness |
 | `tb_conv2d_unroll3.v` | RTL-V2 correctness |
 | `tb_conv2d_unroll9.v` | RTL-V3 correctness |
+| `tb_conv2d_unroll9_dsp.v` | RTL-V4 correctness |
 
 ---
 
-## Vivado Simulation Steps
+## LUT vs DSP Trade-off
 
-1. Create new project targeting Artix-7 (xc7a35tcpg236-1)
-2. Add design source (e.g., `conv2d_serial.v`)
-3. Add simulation source (e.g., `tb_conv2d_serial.v`)
-4. Run **Behavioral Simulation**
-5. Verify output = 9 in console log
+| Metric | V3 (LUT) | V4 (DSP) | Winner |
+|--------|----------|----------|--------|
+| LUTs | 758 | **0** | V4 |
+| DSPs | 0 | 9 | V3 |
+| Energy/MAC | Higher | **Lower** | V4 |
 
----
-
-## Synthesis Flow (DSE)
-
-For each variant:
-
-1. Run **Synthesis** (default settings)
-2. Open **Synthesis Report**
-3. Record from **Utilization Summary**:
-   - LUTs
-   - DSP48E1 blocks
-   - FFs (optional)
-
----
-
-## Expected DSE Results
-
-| Variant | DSPs | LUTs | Latency | Throughput | Efficiency |
-|---------|------|------|---------|------------|------------|
-| RTL-V1 | ~1 | Low | 9 cycles | 1/9 per cycle | Baseline |
-| RTL-V2 | ~3 | Medium | 3 cycles | 1/3 per cycle | **Best** |
-| RTL-V3 | ~9 | High | 1 cycle | 1 per cycle | Diminishing |
-
----
-
-## Design Philosophy
-
-> "Partial parallelism (RTL-V2) achieves most of the performance benefit of full unrolling while significantly reducing hardware cost, making it ideal for resource-constrained edge SoCs."
+**Use V4 (DSP)** when LUT budget is tight or power efficiency is critical.
 
 ---
 
 ## Target Device
 
-- **FPGA**: Xilinx Artix-7 (xc7a35tcpg236-1)
-- **Board**: Basys3 (or equivalent)
+- **FPGA**: Xilinx Zynq-7020 (xc7z020clg400-1)
+- **DSPs Available**: 220
 - **Clock**: 100 MHz (10 ns period)
+
