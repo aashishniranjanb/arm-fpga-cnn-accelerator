@@ -2,6 +2,10 @@
 
 This document summarizes the key findings from the CNN convolution accelerator design-space exploration.
 
+**Target Device**: Xilinx Zynq-7020 (xc7z020clg400-1)  
+**Tool Version**: Vivado v.2024.1  
+**Design State**: Synthesized
+
 ---
 
 ## Functional Verification
