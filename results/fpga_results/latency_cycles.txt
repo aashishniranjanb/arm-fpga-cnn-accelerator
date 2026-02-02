@@ -1,0 +1,9 @@
+FPGA CNN Convolution Latency (3×3)
+
+conv2d_serial      : 9 cycles
+conv2d_unroll3     : 3 cycles
+conv2d_unroll9     : 1 cycle
+conv2d_unroll9_dsp : 1 cycle
+
+Clock frequency assumed: 100 MHz
+Latency per inference: 10 ns (1 cycle @ 100 MHz)
