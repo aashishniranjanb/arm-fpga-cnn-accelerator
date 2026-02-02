@@ -1,30 +1,61 @@
-import time
+"""
+CPU Reference Test for CNN Accelerator
+Generates golden reference output for FPGA verification
+"""
 
-IMG_SIZE = 8
-KERNEL_SIZE = 3
-OUT_SIZE = IMG_SIZE - KERNEL_SIZE + 1
+import numpy as np
+import sys
+import os
 
-# Initialize image and kernel with all 1s
-image = [[1 for _ in range(IMG_SIZE)] for _ in range(IMG_SIZE)]
-kernel = [[1 for _ in range(KERNEL_SIZE)] for _ in range(KERNEL_SIZE)]
-output = [[0 for _ in range(OUT_SIZE)] for _ in range(OUT_SIZE)]
+# Add preprocessing to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'preprocessing'))
 
-# Measure time
-start = time.perf_counter_ns()
+try:
+    from preprocess import preprocess_image
+    USE_OPENCV = True
+except ImportError:
+    USE_OPENCV = False
+    print("Warning: OpenCV not available, using synthetic data")
 
-# 3x3 Convolution
-for i in range(OUT_SIZE):
-    for j in range(OUT_SIZE):
-        sum_val = 0
-        for ki in range(KERNEL_SIZE):
-            for kj in range(KERNEL_SIZE):
-                sum_val += image[i + ki][j + kj] * kernel[ki][kj]
-        output[i][j] = sum_val
+def cpu_convolution(data, weights):
+    """
+    CPU reference 3x3 convolution (single MAC)
+    This produces golden output for RTL verification
+    """
+    return np.dot(data.astype(np.int32), weights.astype(np.int32))
 
-end = time.perf_counter_ns()
-
-duration = end - start
-
-print("CPU Convolution completed")
-print(f"Execution time (ns): {duration}")
-print(f"Sample output[0][0]: {output[0][0]}")
+if __name__ == "__main__":
+    # Load or synthesize input
+    if USE_OPENCV and os.path.exists("../../datasets/sample_images/img_0.png"):
+        data = preprocess_image("../../datasets/sample_images/img_0.png")
+        print(f"Input from: img_0.png")
+    else:
+        # Synthetic 3x3 input (all ones)
+        data = np.ones(9, dtype=np.int8)
+        print("Input: synthetic (all ones)")
+    
+    # Kernel weights (edge detection example)
+    weights = np.array([1, 0, -1, 1, 0, -1, 1, 0, -1], dtype=np.int8)
+    
+    # CPU convolution
+    output = cpu_convolution(data, weights)
+    
+    print(f"\n3x3 Input:  {data}")
+    print(f"Weights:    {weights}")
+    print(f"CPU Output: {output}")
+    print(f"\nThis output is the golden reference for FPGA verification.")
+    
+    # Save to results
+    results_path = "../../results/software_results/cpu_reference_output.txt"
+    os.makedirs(os.path.dirname(results_path), exist_ok=True)
+    
+    with open(results_path, "w") as f:
+        f.write("CPU Reference Output for FPGA Verification\n")
+        f.write("=" * 50 + "\n\n")
+        f.write(f"Input image : img_0.png\n")
+        f.write(f"3x3 window  : {data.tolist()}\n")
+        f.write(f"Weights     : {weights.tolist()}\n")
+        f.write(f"CPU Output  : {output}\n\n")
+        f.write("Used as golden reference for FPGA verification.\n")
+    
+    print(f"\nResults saved to: {results_path}")

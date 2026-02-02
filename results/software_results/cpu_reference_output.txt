@@ -1,25 +1,9 @@
-CPU Reference Output (Golden Model)
+CPU Reference Output for FPGA Verification
+==================================================
 
-Test Case: 3×3 Convolution
+Input image : img_0.png
+3x3 window  : [50, 109, 112, 50, 106, 119, 49, 85, 112]
+Weights     : [1, 0, -1, 1, 0, -1, 1, 0, -1]
+CPU Output  : -194
 
-Input Matrix (5×5):
- 1  2  3  4  5
- 6  7  8  9 10
-11 12 13 14 15
-16 17 18 19 20
-21 22 23 24 25
-
-Kernel (3×3):
-1 0 -1
-1 0 -1
-1 0 -1
-
-Expected Output (3×3):
--6 -6 -6
--6 -6 -6
--6 -6 -6
-
----
-
-Verification Status: PASS
-RTL simulation matches CPU reference output.
+Used as golden reference for FPGA verification.
