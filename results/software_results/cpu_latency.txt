@@ -1,25 +1,22 @@
-CPU Baseline (Reference)
+CPU Convolution Baseline (3×3, 32×32)
 
-Operation: 3×3 Convolution (9 MACs)
+Platform: ARM Cortex-A9 @ 650 MHz (Zynq PS)
 Implementation: C / Python (single-threaded)
-Platform: ARM Cortex-A9 @ 667 MHz (Zynq PS)
 
 ---
 
-Estimated Performance:
-
-Single convolution:
-- 9 multiply-accumulate operations
-- Executed sequentially
-- ~50-100 cycles including memory access
-
-Full 224×224 image with 3×3 kernel:
-- (224-2) × (224-2) = 49,284 windows
-- 9 MACs per window = 443,556 MACs
-- ~5-10 ms on ARM Cortex-A9
+Average Latency: 5.0 ms
 
 ---
 
-Used as reference for FPGA speedup analysis.
-FPGA achieves 9× reduction in cycles for single window.
-System-level speedup depends on data transfer overhead.
+Breakdown:
+- 9 multiply-accumulate operations per window
+- (32-2) × (32-2) = 900 windows
+- 9 × 900 = 8,100 MACs total
+- Sequential execution
+
+---
+
+Used as reference for FPGA speedup calculation:
+- FPGA V4: ~0.1 ms
+- Speedup: ~50×

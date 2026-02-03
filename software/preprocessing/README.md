@@ -1,25 +1,54 @@
-# CPU Preprocessing Stage
+# CPU Preprocessing
 
-This folder contains CPU-side preprocessing code executed on the Arm processor.
-Preprocessing is kept on CPU to avoid wasting FPGA resources.
+The CPU (ARM Cortex-A9) performs:
 
-## Pipeline Steps
+1. **Image loading** from storage
+2. **Resize** to 32×32 grayscale
+3. **Normalization** to INT8
+4. **Sliding window extraction** (3×3)
 
-1. **Image loading** — Read from memory/camera
-2. **Grayscale conversion** — RGB to single channel
-3. **Normalization to int8** — Scale for FPGA-friendly inference
-4. **Sliding-window extraction** — Prepare 3×3 windows for convolution
+Only convolution math is offloaded to FPGA.
+This minimizes FPGA control logic and maximizes efficiency.
 
-## Output
+---
 
-Preprocessed data is streamed to the FPGA accelerator via AXI-Stream.
-
-## Why CPU?
+## Why CPU for Preprocessing?
 
 | Task | CPU | FPGA |
 |------|-----|------|
 | File I/O | ✅ | ❌ |
+| Resize/Interpolation | ✅ | ❌ |
 | Irregular control | ✅ | ❌ |
 | Heavy MAC ops | ❌ | ✅ |
 
-This partitioning follows standard SoC design practices.
+This partitioning follows standard **SoC design practices**.
+
+---
+
+## Files
+
+| File | Description |
+|------|-------------|
+| `preprocess.py` | Python preprocessing (PIL-based) |
+| `preprocess.cpp` | C++ preprocessing (OpenCV) |
+| `generate_dataset.py` | Sample image generator |
+
+---
+
+## Usage
+
+```bash
+# Generate sample dataset
+python generate_dataset.py
+
+# Run preprocessing
+python preprocess.py
+```
+
+---
+
+## Output Format
+
+Preprocessed data is:
+- Flattened to 9-element int8 array
+- Ready for AXI-Stream to FPGA accelerator

@@ -1,9 +1,19 @@
 CPU Reference Output for FPGA Verification
-==================================================
+==========================================
 
-Input image : img_0.png
-3x3 window  : [50, 109, 112, 50, 106, 119, 49, 85, 112]
-Weights     : [1, 0, -1, 1, 0, -1, 1, 0, -1]
-CPU Output  : -194
+Input window:
+[50, 109, 112,
+ 50, 106, 119,
+ 49,  85, 112]
 
-Used as golden reference for FPGA verification.
+Kernel:
+[1, 0, -1,
+ 1, 0, -1,
+ 1, 0, -1]
+
+Output: -194
+
+---
+
+This is the GOLDEN REFERENCE.
+FPGA RTL output must match this value.
